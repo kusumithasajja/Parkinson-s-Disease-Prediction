@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Parkinson's Disease Prediction</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(to right, #e0f7fa, #ffffff);
+    }
+
+    .container {
+      background-color: #f5f5f5;
+      padding: 30px;
+      border-radius: 12px;
+      width: 420px;
+      margin: 30px auto;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      color: #00695c;
+    }
+
+    .brain-image {
+      width: 100%;
+      height: auto;
+      border-radius: 10px;
+      margin: 20px 0;
+      border: 2px solid #009688;
+    }
+
+    input[type="file"] {
+      margin: 20px 0;
+    }
+
+    button {
+      background-color: #00897b;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #00695c;
+    }
+
+    #prediction {
+      margin-top: 20px;
+      font-weight: bold;
+      color: #1b5e20;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>Parkinson's Disease Prediction</h2>
+
+    <!-- Brain Scan Image Below Title -->
+    <img class="brain-image" src="image.png" alt="Brain Scan for Parkinson's Disease" />
+
+    <form id="uploadForm">
+      <input type="file" id="pdbFile" accept=".pdb" required />
+      <br>
+      <button type="submit">Predict</button>
+    </form>
+    <div id="prediction"></div>
+  </div>
+
+  <script>
+    const form = document.getElementById('uploadForm');
+    const predictionDiv = document.getElementById('prediction');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const fileInput = document.getElementById('pdbFile');
+      const file = fileInput.files[0];
+
+      if (!file) {
+        predictionDiv.textContent = 'Please select a file.';
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('file', file);
+
+      predictionDiv.textContent = 'Predicting...';
+
+      try {
+        const response = await fetch('http://127.0.0.1:5000/predict', {
+          method: 'POST',
+          body: formData
+        });
+
+        const data = await response.json();
+
+        if (data.prediction) {
+          predictionDiv.textContent = `Prediction: ${data.prediction}`;
+        } else if (data.error) {
+          predictionDiv.textContent = `Error: ${data.error}`;
+        }
+      } catch (error) {
+        predictionDiv.textContent = 'Error: Could not connect to backend.';
+      }
+    });
+  </script>
+
+</body>
+</html>
